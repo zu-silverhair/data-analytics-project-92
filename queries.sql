@@ -5,6 +5,7 @@ select
 from public.customers
 ;
 
+--ШАГ 5--
 
 
 ---Первый отчет о десятке лучших продавцов. Таблица состоит из трех колонок - данных о продавце, суммарной выручке с проданных товаров и количестве проведенных сделок, и отсортирована по убыванию выручки
@@ -67,9 +68,76 @@ order  by numb, seller
 
 
 
+--ШАГ 6--
+---Первый отчет - количество покупателей в разных возрастных группах: 16-25, 26-40 и 40+. Итоговая таблица должна быть отсортирована по возрастным группам и содержать следующие поля:
+---age_category - возрастная группа
+---count - количество человек в группе
+	select
+	  	(case
+		  when public.customers.age between 16 and 25 then '16-25'
+		  when public.customers.age between 26 and 40 then '26-40' 
+		  when public.customers.age > 40 then '40+' 
+		 end) as age_category,
+  	 	count(public.customers.customer_id) as age_count
+  	from public.customers
+	group by age_category
+  	order by age_category
+  	;
 
-
-
+  
+  
+---Во втором отчете предоставьте данные по количеству уникальных покупателей и выручке, которую они принесли. Сгруппируйте данные по дате, которая представлена в числовом виде ГОД-МЕСЯЦ. 
+--Итоговая таблица должна быть отсортирована по дате по возрастанию и содержать следующие поля:
+---date - дата в указанном формате
+---total_customers - количество покупателей
+---income - принесенная выручка
+  select 
+  to_char (public.sales.sale_date, 'YYYY-MM') as date,
+  count(distinct public.sales.customer_id) as total_customers,
+  sum(public.sales.quantity * public.products.price) as income 
+  from public.sales
+  inner join public.products on public.sales.product_id = public.products.product_id
+  group by date
+  order by date
+  ;
+ 
+ 
+ 
+ ---Третий отчет следует составить о покупателях, первая покупка которых была в ходе проведения акций (акционные товары отпускали со стоимостью равной 0).
+ --- Итоговая таблица должна быть отсортирована по id покупателя. Таблица состоит из следующих полей:
+---customer - имя и фамилия покупателя
+---sale_date - дата покупки
+---seller - имя и фамилия продавца
+ with row_group as(
+ select 
+ --public.sales.customer_id,
+ concat(public.customers.first_name,' ',public.customers.last_name) as customer,
+ public.sales.sale_date,
+ concat(public.employees.first_name,' ',public.employees.last_name) as seller--, 
+ --public.products.price
+ from public.sales
+ inner join public.customers on public.sales.customer_id = public.customers.customer_id 
+ inner join public.employees on public.sales.sales_person_id = public.employees.employee_id 
+ inner join public.products on public.sales.product_id = public.products.product_id 
+ where public.products.price = 0
+group by public.sales.customer_id, public.customers.first_name, public.customers.last_name,  public.sales.sale_date, public.employees.first_name, public.employees.last_name, public.products.price
+order by public.sales.customer_id, public.products.price
+), rn_tab as(
+select 
+customer,
+sale_date,
+seller,
+ROW_NUMBER() over (PARTITION by customer) as rn 
+from row_group
+group by customer, sale_date, seller)
+select 
+customer,
+sale_date,
+seller
+from rn_tab 
+where rn = 1
+;
+ 
 
 
 
