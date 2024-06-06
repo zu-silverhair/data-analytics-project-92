@@ -1,12 +1,12 @@
----считает общее количество покупателей из таблицы customers
+--ШАГ 4--
 
+---Напишите запрос, который считает общее количество покупателей из таблицы customers. Назовите колонку customers_count
 select
 	count(customer_id) as "customers_count"
 from public.customers
 ;
 
 --ШАГ 5--
-
 
 ---Первый отчет о десятке лучших продавцов. Таблица состоит из трех колонок - данных о продавце, суммарной выручке с проданных товаров и количестве проведенных сделок, и отсортирована по убыванию выручки
 ---seller — имя и фамилия продавца
@@ -15,7 +15,7 @@ from public.customers
 select
 concat(first_name,' ',last_name) as seller,
 count(public.sales.sales_person_id) as operations,
-sum(public.products.price*public.sales.quantity) as income
+ROUND(sum(public.products.price*public.sales.quantity),4) as income
 from public.employees
 inner join public.sales on public.employees.employee_id = public.sales.sales_person_id 
 inner join public.products on public.sales.product_id = public.products.product_id 
@@ -30,7 +30,7 @@ order by income desc
 ---average_income — средняя выручка продавца за сделку с округлением до целого
 select
 concat(first_name,' ',last_name) as seller,
-ROUND(avg(public.products.price*public.sales.quantity),0) as average_income
+floor(avg(public.products.price*public.sales.quantity)) as average_income
 from public.employees
 inner join public.sales on public.employees.employee_id = public.sales.sales_person_id 
 inner join public.products on public.sales.product_id = public.products.product_id 
@@ -69,6 +69,7 @@ order  by numb, seller
 
 
 --ШАГ 6--
+
 ---Первый отчет - количество покупателей в разных возрастных группах: 16-25, 26-40 и 40+. Итоговая таблица должна быть отсортирована по возрастным группам и содержать следующие поля:
 ---age_category - возрастная группа
 ---count - количество человек в группе
