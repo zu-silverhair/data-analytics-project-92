@@ -95,7 +95,7 @@ order  by numb, seller
   select 
   to_char (public.sales.sale_date, 'YYYY-MM') as selling_month,
   count(distinct public.sales.customer_id) as total_customers,
-  sum(public.sales.quantity * public.products.price) as income 
+  floor(sum(public.sales.quantity * public.products.price)) as income 
   from public.sales
   inner join public.products on public.sales.product_id = public.products.product_id
   group by selling_month
