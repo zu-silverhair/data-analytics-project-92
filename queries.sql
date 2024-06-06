@@ -15,7 +15,7 @@ from public.customers
 select
 concat(first_name,' ',last_name) as seller,
 count(public.sales.sales_person_id) as operations,
-ROUND(sum(public.products.price*public.sales.quantity),4) as income
+floor(sum(public.products.price*public.sales.quantity)) as income
 from public.employees
 inner join public.sales on public.employees.employee_id = public.sales.sales_person_id 
 inner join public.products on public.sales.product_id = public.products.product_id 
