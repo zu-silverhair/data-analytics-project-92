@@ -93,13 +93,13 @@ order  by numb, seller
 ---total_customers - количество покупателей
 ---income - принесенная выручка
   select 
-  to_char (public.sales.sale_date, 'YYYY-MM') as date,
+  to_char (public.sales.sale_date, 'YYYY-MM') as selling_month,
   count(distinct public.sales.customer_id) as total_customers,
   sum(public.sales.quantity * public.products.price) as income 
   from public.sales
   inner join public.products on public.sales.product_id = public.products.product_id
-  group by date
-  order by date
+  group by selling_month
+  order by selling_month
   ;
  
  
