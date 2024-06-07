@@ -111,26 +111,23 @@ order  by numb, seller
 ---seller - имя и фамилия продавца
  with row_group as(
  select 
- --public.sales.customer_id,
  concat(public.customers.first_name,' ',public.customers.last_name) as customer,
  public.sales.sale_date,
  concat(public.employees.first_name,' ',public.employees.last_name) as seller--, 
- --public.products.price
  from public.sales
  inner join public.customers on public.sales.customer_id = public.customers.customer_id 
  inner join public.employees on public.sales.sales_person_id = public.employees.employee_id 
  inner join public.products on public.sales.product_id = public.products.product_id 
  where public.products.price = 0
 group by public.sales.customer_id, public.customers.first_name, public.customers.last_name,  public.sales.sale_date, public.employees.first_name, public.employees.last_name, public.products.price
-order by public.sales.customer_id, public.products.price
-), rn_tab as(
+order by public.sales.customer_id,  public.sales.sale_date
+),rn_tab as(
 select 
 customer,
 sale_date,
 seller,
 ROW_NUMBER() over (PARTITION by customer) as rn 
-from row_group
-group by customer, sale_date, seller)
+from row_group)
 select 
 customer,
 sale_date,
@@ -141,6 +138,13 @@ where rn = 1
  
 
 
+select 
+customer,
+sale_date,
+seller
+from rn_tab 
+where rn = 1
+;
 
 
 
