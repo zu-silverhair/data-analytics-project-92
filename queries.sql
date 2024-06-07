@@ -51,7 +51,7 @@ order by average_income
 with tb_1 as(
 select
 concat(first_name,' ',last_name) as seller,
-to_char(public.sales.sale_date,'day') as day_of_week,
+to_char(public.sales.sale_date, 'day') as day_of_week,
 floor(sum(public.products.price*public.sales.quantity)) as income,
 extract (dow from public.sales.sale_date) as numb
 from public.employees
@@ -135,18 +135,6 @@ seller
 from rn_tab 
 where rn = 1
 ;
- 
-
-
-select 
-customer,
-sale_date,
-seller
-from rn_tab 
-where rn = 1
-;
-
-
 
 
 
