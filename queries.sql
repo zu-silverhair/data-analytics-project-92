@@ -21,6 +21,7 @@ inner join public.sales on public.employees.employee_id = public.sales.sales_per
 inner join public.products on public.sales.product_id = public.products.product_id 
 group by seller
 order by income desc 
+limit 10
 ;
 
 
@@ -51,7 +52,7 @@ order by average_income
 with tb_1 as(
 select
 concat(first_name,' ',last_name) as seller,
-to_char(public.sales.sale_date, 'day') as day_of_week,
+trim(both ' ' from to_char(public.sales.sale_date, 'day')) as day_of_week,
 floor(sum(public.products.price*public.sales.quantity)) as income,
 extract (dow from public.sales.sale_date) as numb
 from public.employees
