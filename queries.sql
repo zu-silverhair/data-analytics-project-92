@@ -49,22 +49,22 @@ order by average_income
 ---seller — имя и фамилия продавца
 ---day_of_week — название дня недели на английском языке
 ---income — суммарная выручка продавца в определенный день недели, округленная до целого числа
-with tb_1 as (
-select concat(e.first_name, ' ', e.last_name) as seller,
-to_char(s.sale_date, 'day')  as day_of_week,
-floor(sum(p.price * s.quantity)) as income,
-extract(dow from s.sale_date) + 1 as num_week
-from sales s
-left join employees e
-  on s.sales_person_id = e.employee_id
-left join products p
-  on s.product_id = p.product_id
-group by 1, 2, 4
-order by 4, 1
-)
-
-select seller, day_of_week, income
-from tb_1
+with tb_1 as(
+select
+concat(first_name, ' ', last_name) as seller,
+to_char(public.sales.sale_date, 'day') as day_of_week,
+floor(sum(public.products.price*public.sales.quantity)) as income,
+extract (isodow from public.sales.sale_date) as numb
+from public.employees
+inner join public.sales on public.employees.employee_id = public.sales.sales_person_id 
+inner join public.products on public.sales.product_id = public.products.product_id 
+group by seller, day_of_week, numb
+) select 
+	seller,
+	day_of_week,
+	income
+ from tb_1
+order  by numb, seller
 ;
 
 
