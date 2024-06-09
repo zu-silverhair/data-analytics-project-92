@@ -34,8 +34,7 @@ inner join public.products
 group by seller
 having
     round(avg(public.products.price * public.sales.quantity), 0) < (
-        select
-            round(avg(public.products.price * public.sales.quantity), 0)
+        select round(avg(public.products.price * public.sales.quantity), 0)
         from public.sales
         inner join public.products
             on public.sales.product_id = public.products.product_id
@@ -95,6 +94,7 @@ order by selling_month;
 ---отчет о покупателях, первая покупка которых была в ходе проведения акций
 with row_group as (
     select
+        public.sales.sales_id,
         concat(public.customers.first_name, ' ', public.customers.last_name)
         as customer,
         public.sales.sale_date,
@@ -115,7 +115,8 @@ with row_group as (
         public.sales.sale_date,
         public.employees.first_name,
         public.employees.last_name,
-        public.products.price
+        public.products.price,
+        public.sales.sales_id
     order by public.sales.customer_id, public.sales.sale_date
 ),
 
