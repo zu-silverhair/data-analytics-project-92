@@ -6,9 +6,9 @@ from public.customers;
 --ШАГ 5--
 ---Первый отчет о десятке лучших продавцов.
 select
-	concat(public.employees.first_name, ' ', public.employees.last_name)
+    concat(public.employees.first_name, ' ', public.employees.last_name)
 	as seller,
-	count(public.sales.sales_person_id)
+    count(public.sales.sales_person_id)
 	as operations,
     floor(sum(public.products.price * public.sales.quantity))
     as income
@@ -31,22 +31,21 @@ inner join public.sales
 inner join public.products
 	on public.sales.product_id = public.products.product_id
 group by seller
-having 
-	round(avg(public.products.price * public.sales.quantity), 0) <
-(select 
-	round(avg(public.products.price * public.sales.quantity), 0)
-from public.sales
-inner join public.products 
-	on public.sales.product_id = public.products.product_id)
+having
+	round(avg(public.products.price * public.sales.quantity), 0) < (select
+																		round(avg(public.products.price * public.sales.quantity), 0)
+																	from public.sales
+																	inner join public.products 
+																		on public.sales.product_id = public.products.product_id)
 order by average_income;
 
 ---Третий отчет содержит информацию о выручке по дням недели.
 with tb_1 as (
-select 
+select
 	concat(public.employees.first_name,' ', public.employees.last_name) as seller,
- 	to_char(public.sales.sale_date,'day')as day_of_week,
-    floor(sum(public.products.price * public.sales.quantity))as income,
-    extract(isodow from public.sales.sale_date)as numb
+ 	to_char(public.sales.sale_date, 'day') as day_of_week,
+    floor(sum(public.products.price * public.sales.quantity)) as income,
+    extract(isodow from public.sales.sale_date) as numb
 from public.employees
 inner join public.sales 
 	on public.employees.employee_id = public.sales.sales_person_id
@@ -55,7 +54,7 @@ inner join public.products
 group by seller, day_of_week, numb
 )
 
-select 
+select
 	seller,
     day_of_week,
     income
@@ -64,7 +63,8 @@ order by numb, seller;
 
 --ШАГ 6--
 ---отчет - количество покупателей в разных возрастных группах: 16-25, 26-40 и 40+.
-select (
+select
+(
 case
 	when public.customers.age between 16 and 25 then '16-25'
     when public.customers.age between 26 and 40 then '26-40'
@@ -77,11 +77,12 @@ order by age_category;
 
 ---отчет по количеству уникальных покупателей и выручке, которую они принесли.
 select 
-	to_char(public.sales.sale_date, 'YYYY-MM') as selling_month,
+    to_char(public.sales.sale_date, 'YYYY-MM') as selling_month,
     count(distinct public.sales.customer_id) as total_customers,
     floor(sum(public.sales.quantity * public.products.price)) as income
 from public.sales
-inner join public.products on public.sales.product_id = public.products.product_id
+inner join public.products 
+	on public.sales.product_id = public.products.product_id
 group by selling_month
 order by selling_month;
 
@@ -101,9 +102,13 @@ with row_group as (
 	inner join public.products
 		on public.sales.product_id = public.products.product_id
 	where public.products.price = 0
-	group by 
-		public.sales.customer_id, public.customers.first_name, public.customers.last_name,
-		public.sales.sale_date, public.employees.first_name, public.employees.last_name,
+	group by
+		public.sales.customer_id,
+		public.customers.first_name,
+		public.customers.last_name,
+		public.sales.sale_date,
+		public.employees.first_name,
+		public.employees.last_name,
 		public.products.price
 	order by public.sales.customer_id, public.sales.sale_date
 ),
@@ -116,7 +121,7 @@ rn_tab as (
 		row_number() over (partition by customer) as rn
 	from row_group
 )
-             
+
 select
 	customer,
 	sale_date,
