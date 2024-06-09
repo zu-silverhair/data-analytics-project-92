@@ -94,10 +94,9 @@ order by selling_month;
 ---отчет о покупателях, первая покупка которых была в ходе проведения акций
 with row_group as (
     select
-        public.sales.sales_id,
+        public.sales.sale_date,
         concat(public.customers.first_name, ' ', public.customers.last_name)
         as customer,
-        public.sales.sale_date,
         concat(public.employees.first_name, ' ', public.employees.last_name)
         as seller
     from public.sales
@@ -115,8 +114,7 @@ with row_group as (
         public.sales.sale_date,
         public.employees.first_name,
         public.employees.last_name,
-        public.products.price,
-        public.sales.sales_id
+        public.products.price
     order by public.sales.customer_id, public.sales.sale_date
 ),
 
