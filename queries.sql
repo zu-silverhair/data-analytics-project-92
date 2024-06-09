@@ -5,36 +5,39 @@ from public.customers;
 
 --ШАГ 5--
 ---Первый отчет о десятке лучших продавцов.
-select 
-	concat(public.employees.first_name,' ', public.employees.last_name) 
+select
+	concat(public.employees.first_name, ' ', public.employees.last_name)
 	as seller,
-	count(public.sales.sales_person_id) 
+	count(public.sales.sales_person_id)
 	as operations,
     floor(sum(public.products.price * public.sales.quantity))
     as income
 from public.employees
 inner join public.sales
 	on public.employees.employee_id = public.sales.sales_person_id
-inner join public.products 
+inner join public.products
 	on public.sales.product_id = public.products.product_id
 group by seller
 order by income desc
 limit 10;
 
----отчет о продавцах, чья средняя выручка за сделку меньше средней выручки за сделку по всем продавцам.
+---отчет о продавцах,средняя выручка меньше средней выручкипо всем продавцам.
 select
-	concat(public.employees.first_name,' ', public.employees.last_name) as seller,
-    floor(avg(public.products.price * public.sales.quantity))as average_income
+	concat(public.employees.first_name, ' ', public.employees.last_name) as seller,
+    floor(avg(public.products.price * public.sales.quantity)) as average_income
 from public.employees
-inner join public.sales 
+inner join public.sales
 	on public.employees.employee_id = public.sales.sales_person_id
 inner join public.products
 	on public.sales.product_id = public.products.product_id
 group by seller
-having ROUND(avg(public.products.price * public.sales.quantity), 0) <
-       (select ROUND(avg(public.products.price * public.sales.quantity), 0)
-        from public.sales
-                 inner join public.products on public.sales.product_id = public.products.product_id)
+having 
+	round(avg(public.products.price * public.sales.quantity), 0) <
+(select 
+	round(avg(public.products.price * public.sales.quantity), 0)
+from public.sales
+inner join public.products 
+	on public.sales.product_id = public.products.product_id)
 order by average_income;
 
 ---Третий отчет содержит информацию о выручке по дням недели.
@@ -73,45 +76,47 @@ group by age_category
 order by age_category;
 
 ---отчет по количеству уникальных покупателей и выручке, которую они принесли.
-select to_char(public.sales.sale_date, 'YYYY-MM')                as selling_month,
-       count(distinct public.sales.customer_id)                  as total_customers,
-       floor(sum(public.sales.quantity * public.products.price)) as income
+select 
+	to_char(public.sales.sale_date, 'YYYY-MM') as selling_month,
+    count(distinct public.sales.customer_id) as total_customers,
+    floor(sum(public.sales.quantity * public.products.price)) as income
 from public.sales
-         inner join public.products on public.sales.product_id = public.products.product_id
+inner join public.products on public.sales.product_id = public.products.product_id
 group by selling_month
 order by selling_month;
 
 ---отчет о покупателях, первая покупка которых была в ходе проведения акций.
 with row_group as (
-select 
-	concat(public.customers.first_name,' ', public.customers.last_name)
-	as customer,
-	public.sales.sale_date,
-   	concat(public.employees.first_name,' ', public.employees.last_name) 
-   	as seller
-from public.sales
-inner join public.customers
-	on public.sales.customer_id = public.customers.customer_id
-inner join public.employees
-	on public.sales.sales_person_id = public.employees.employee_id
-inner join public.products
-	on public.sales.product_id = public.products.product_id
-where public.products.price = 0
-group by public.sales.customer_id, public.customers.first_name, public.customers.last_name,
-public.sales.sale_date, public.employees.first_name, public.employees.last_name,
-public.products.price
-order by public.sales.customer_id, public.sales.sale_date
+	select
+		concat(public.customers.first_name, ' ', public.customers.last_name)
+		as customer,
+		public.sales.sale_date,
+   		concat(public.employees.first_name, ' ', public.employees.last_name)
+   		as seller
+	from public.sales
+	inner join public.customers
+		on public.sales.customer_id = public.customers.customer_id
+	inner join public.employees
+		on public.sales.sales_person_id = public.employees.employee_id
+	inner join public.products
+		on public.sales.product_id = public.products.product_id
+	where public.products.price = 0
+	group by 
+		public.sales.customer_id, public.customers.first_name, public.customers.last_name,
+		public.sales.sale_date, public.employees.first_name, public.employees.last_name,
+		public.products.price
+	order by public.sales.customer_id, public.sales.sale_date
 ),
 
-rn_tab as( 
-select
-	customer,
-	sale_date,
-	seller,
-	row_number() over (partition by customer) as rn
-from row_group
+rn_tab as (
+	select
+		customer,
+		sale_date,
+		seller,
+		row_number() over (partition by customer) as rn
+	from row_group
 )
-                
+             
 select
 	customer,
 	sale_date,
