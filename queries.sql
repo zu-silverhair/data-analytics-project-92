@@ -6,17 +6,17 @@ from public.customers;
 --ШАГ 5--
 ---Первый отчет о десятке лучших продавцов.
 select
-    concat(public.employees.first_name, ' ', public.employees.last_name)
+	concat(public.employees.first_name, ' ', public.employees.last_name)
 	as seller,
     count(public.sales.sales_person_id)
-	as operations,
+    as operations,
     floor(sum(public.products.price * public.sales.quantity))
     as income
 from public.employees
 inner join public.sales
-	on public.employees.employee_id = public.sales.sales_person_id
+    on public.employees.employee_id = public.sales.sales_person_id
 inner join public.products
-	on public.sales.product_id = public.products.product_id
+    on public.sales.product_id = public.products.product_id
 group by seller
 order by income desc
 limit 10;
