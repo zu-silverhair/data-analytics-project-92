@@ -23,7 +23,8 @@ limit 10;
 
 ---отчет о продавцах,средняя выручка меньше средней выручкипо всем продавцам
 select
-    concat(public.employees.first_name, ' ', public.employees.last_name) as seller,
+    concat(public.employees.first_name, ' ', public.employees.last_name)
+    as seller,
     floor(avg(public.products.price * public.sales.quantity)) as average_income
 from public.employees
 inner join public.sales
@@ -36,9 +37,9 @@ having
         select
             round(avg(public.products.price * public.sales.quantity), 0)
         from public.sales
-        inner join public.products 
+        inner join public.products
             on public.sales.product_id = public.products.product_id
-)
+    )
 order by average_income;
 
 ---Третий отчет содержит информацию о выручке по дням недели
@@ -50,7 +51,7 @@ with tb_1 as (
         floor(sum(public.products.price * public.sales.quantity)) as income,
         extract(isodow from public.sales.sale_date) as numb
     from public.employees
-    inner join public.sales 
+    inner join public.sales
         on public.employees.employee_id = public.sales.sales_person_id
     inner join public.products
         on public.sales.product_id = public.products.product_id
@@ -72,7 +73,8 @@ select
             when public.customers.age between 16 and 25 then '16-25'
             when public.customers.age between 26 and 40 then '26-40'
             when public.customers.age > 40 then '40+'
-        end)
+        end
+    )
     as age_category,
     count(public.customers.customer_id) as age_count
 from public.customers
