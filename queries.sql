@@ -123,9 +123,9 @@ rn_tab as (
         customer,
         sale_date,
         seller,
-        row_number() over (partition by customer) as rn
+        row_number() over (partition by customer order by sale_date) as rn
     from row_group
-)
+    )
 
 select
     customer,
